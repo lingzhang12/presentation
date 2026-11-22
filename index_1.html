@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who Is Doing the Thinking? Student Agency and Metacognition With AI</title>
+<style>
+:root{
+  --paper:#FFFFFF; --card:#FFFFFF; --ink:#1E293B; --navy:#1B365D; --brown:#8B5E3A; --muted:#5A6A7A; --line:#E2E8F0; --soft:#F2F2F2;
+  --ai:#8B5E3A; --ai-soft:#F5EFE9; --stu:#1B365D; --stu-soft:#EAEFF5; --none:#5A6A7A;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#F2F2F2;overflow:hidden}
+body{font-family:"Times New Roman",Times,serif;color:var(--ink)}
+#stage{position:absolute;width:1280px;height:720px;transform-origin:0 0;background:var(--paper);overflow:hidden;border:1px solid var(--line)}
+.slide{position:absolute;inset:0;padding:54px 72px 40px;display:none;flex-direction:column}
+.slide.active{display:flex}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.kicker{font-size:22px;color:var(--muted);margin:0 0 6px}
+h1{font-size:68px;line-height:1.05;margin:0 0 18px;color:var(--navy)}
+h2{font-size:46px;line-height:1.1;margin:0 0 22px;color:var(--navy)}
+p,li{font-size:28px;line-height:1.35;margin:0 0 12px}
+.small{font-size:21px;color:var(--muted)}
+.src{position:absolute;left:72px;bottom:18px;font-size:18px;color:var(--muted)}
+.row{display:flex;gap:28px}
+.grow{flex:1;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:22px 26px}
+.ai{color:var(--ai)} .stu{color:var(--stu)}
+button,input,textarea{font-family:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #2F6FED;outline-offset:2px}
+.btn{font-size:22px;padding:10px 20px;border-radius:8px;border:1px solid #B8C2CF;background:#fff;font-weight:bold;color:var(--navy)}
+.btn.primary,.btn.on{background:var(--brown);border-color:var(--brown);color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* title */
+#s-title{justify-content:center;border-top:14px solid var(--navy)}
+#s-title h1{font-size:84px}
+#s-title h1 em{font-style:normal;color:var(--brown)}
+#s-title .who{font-size:28px;margin-top:26px;line-height:1.5;padding-top:22px;border-top:1px solid var(--line)}
+#s-title .who span{color:var(--muted)}
+
+/* hook */
+.choice{flex:1;text-align:left;padding:26px 28px;border-radius:8px;border:1px solid #B8C2CF;background:#fff;font-size:30px;line-height:1.25;min-height:300px;display:flex;flex-direction:column}
+.choice b{font-size:24px;margin-bottom:10px}
+.choice .rev{margin-top:auto;font-size:25px;line-height:1.35;opacity:0;transition:opacity .3s}
+.choice.open .rev{opacity:1}
+.choice.a.open{border:2px solid var(--ai)}
+.choice.b.open{border:2px solid var(--stu)}
+#hookLine{opacity:0;transition:opacity .3s;margin-top:22px;font-size:30px}
+#hookLine.show{opacity:1}
+
+/* numbers */
+.num{font-size:92px;font-weight:bold;line-height:1;color:var(--navy)}
+.numlab{font-size:25px;color:var(--muted);margin-top:6px}
+
+/* dots */
+#dots{display:grid;grid-template-columns:repeat(10,44px);gap:14px;margin:10px 0 0}
+.dot{width:44px;height:44px}
+.g0{background:var(--navy);border-radius:50%}
+.g1{background:#9AA6B4;border-radius:4px}
+.g2{background:var(--brown);border-radius:3px;transform:rotate(45deg) scale(.78)}
+.g3{background:transparent;border:6px solid var(--none);border-radius:50%}
+.dot.star{outline:3px solid var(--brown);outline-offset:5px}
+#legend{list-style:none;padding:0;margin:0}
+#legend li{display:flex;align-items:center;gap:14px;font-size:26px;margin-bottom:12px}
+#legend .dot{width:26px;height:26px;flex:none;outline:none}
+#legend .g3{border-width:5px}
+#finding{font-size:30px;font-weight:bold;margin-top:20px;min-height:40px;color:var(--navy)}
+
+/* balance */
+.bar{height:74px;border-radius:8px;overflow:hidden;display:flex;font-size:24px;font-weight:bold;color:#fff}
+.bar div{display:flex;align-items:center;justify-content:center;transition:width .5s ease;white-space:nowrap;overflow:hidden}
+.bar .bai{background:var(--ai)} .bar .bstu{background:var(--stu)}
+#levelText h3{font-size:34px;margin:0 0 8px;color:var(--navy)}
+.rule{font-size:34px;font-weight:bold;text-align:center;margin-top:auto;margin-bottom:22px}
+
+/* tool */
+.toolslide{padding:26px 36px 22px}
+.toolslide h2{font-size:34px;margin-bottom:12px}
+.tool{flex:1;display:flex;gap:18px;min-height:0}
+.panel{flex:1;background:#fff;border:1px solid #B8C2CF;border-radius:8px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.thead{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:#fff}
+.thead .name{font-size:24px;font-weight:bold;margin-right:auto;color:var(--navy)}
+.thead button{font-size:17px;padding:6px 12px;border-radius:6px;border:1px solid #B8C2CF;background:#fff;color:var(--navy);font-weight:bold}
+.thead button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;font-size:21px;padding:9px;border:0;background:var(--soft);font-weight:bold;color:var(--muted);border-bottom:4px solid transparent}
+.tabs button.on{background:#fff;color:var(--navy);border-bottom-color:var(--brown)}
+.tbody{flex:1;padding:14px 18px;overflow:auto;font-size:22px}
+.tbody.big{font-size:26px}
+.tbody p,.tbody li,.tbody label{font-size:inherit;line-height:1.3}
+.task{border-bottom:1px solid var(--line);padding:0 0 10px;margin-bottom:10px;font-size:.95em}
+.bub{background:var(--soft);border-radius:8px;padding:9px 14px;margin:0 0 10px}
+.bub b{color:var(--ai)}
+.me{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 14px;margin:0 0 10px}
+.me b{color:var(--stu)}
+.tbody input[type=text],.tbody textarea{width:100%;font-size:inherit;padding:8px 10px;border:1px solid #B8C2CF;border-radius:6px;background:#fff}
+.tbody textarea{height:118px;resize:none;line-height:1.3}
+fieldset{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:0}
+legend{font-weight:bold;padding:0 6px;color:var(--navy)}
+fieldset label{display:block;margin:4px 0}
+input[type=checkbox],input[type=radio]{width:20px;height:20px;vertical-align:-3px;margin-right:6px;accent-color:var(--navy)}
+.tb{font-size:19px;padding:7px 14px;border-radius:6px;border:1px solid #B8C2CF;background:#fff;font-weight:bold;color:var(--navy)}
+.tb.go{background:var(--brown);border-color:var(--brown);color:#fff}
+.tb.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.fb{list-style:none;padding:0;margin:10px 0 0}
+.fb li{margin:0 0 6px;padding-left:92px;position:relative}
+.fb li i{position:absolute;left:0;top:0;font-style:normal;font-weight:bold;width:84px}
+.fb .met i{color:var(--stu)} .fb .not i{color:var(--ai)} .fb .ask i{color:var(--ink)}
+.score{width:330px;display:flex;flex-direction:column;gap:12px}
+.sq{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 16px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.sq .q{font-size:22px;color:var(--muted)}
+.sq .a{font-size:32px;font-weight:bold;margin-top:4px;color:var(--none)}
+.sq.isai{border:2px solid var(--ai)} .sq.isai .a{color:var(--ai)}
+.sq.isstu{border:2px solid var(--stu)} .sq.isstu .a{color:var(--stu)}
+.sq.isnone .a{color:var(--none)}
+
+/* flip */
+.flip{flex:1;height:360px;border:0;background:none;padding:0;perspective:1200px;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.open .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:8px;padding:28px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center}
+.front{background:var(--navy);color:#fff;font-size:40px;font-weight:bold;line-height:1.15}
+.front span{font-size:24px;font-weight:normal;color:#D5DCE6;margin-bottom:14px}
+.back{background:#fff;border:2px solid var(--navy);transform:rotateY(180deg);font-size:27px;line-height:1.35}
+.back b{font-size:34px;color:var(--brown);margin-bottom:10px}
+
+/* sort */
+#pool{display:flex;flex-wrap:wrap;gap:10px;min-height:58px;margin-bottom:14px}
+.chip{font-size:21px;padding:8px 14px;border-radius:6px;border:1px solid #B8C2CF;background:#fff;font-weight:bold;color:var(--ink)}
+.cols{display:flex;gap:18px;flex:1;min-height:0}
+.col{flex:1;border-radius:8px;border:1px solid #B8C2CF;padding:12px 14px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.col h3{font-size:28px;margin:0 0 4px;align-self:stretch;padding-bottom:6px;border-bottom:3px solid var(--muted);color:var(--muted)}
+.col.c1 h3{color:var(--ai);border-color:var(--ai)}
+.col.c3 h3{color:var(--stu);border-color:var(--stu)}
+
+/* fade */
+#wk{width:100%;height:36px;accent-color:var(--navy)}
+#prompts{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
+#prompts li{display:flex;justify-content:space-between;gap:16px;font-size:25px;padding:10px 6px;border-bottom:1px solid var(--line);margin:0}
+#prompts li span{font-weight:bold;white-space:nowrap;color:var(--ai)}
+#prompts li.own span{color:var(--stu)}
+#prompts li.keep span{color:var(--muted)}
+
+.take{display:flex;gap:22px;align-items:flex-start;margin-bottom:20px}
+.take .n{font-size:58px;font-weight:bold;color:var(--brown);line-height:1;width:54px;flex:none}
+.take p{font-size:34px;margin:0;line-height:1.25}
+.refs p{font-size:21px;padding-left:36px;text-indent:-36px;line-height:1.35;margin-bottom:12px}
+
+/* chrome */
+#chrome{position:fixed;left:0;right:0;bottom:0;height:46px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--navy);color:#D5DCE6;font-size:16px;font-family:Arial,Helvetica,sans-serif}
+#chrome button{font-size:15px;padding:5px 12px;border-radius:6px;border:1px solid #6F84A3;background:transparent;color:#fff;font-family:inherit}
+#prog{flex:1;height:6px;background:#34507A;border-radius:3px;overflow:hidden}
+#prog i{display:block;height:100%;background:#fff;width:0;transition:width .3s}
+#notes{position:fixed;left:0;right:0;bottom:46px;background:#fff;border-top:3px solid var(--brown);padding:12px 20px;font-size:19px;line-height:1.4;max-height:30vh;overflow:auto;display:none}
+#notes.show{display:block}
+.slide>aside{display:none}
+.sr{position:absolute;left:-9999px}
+
+/* added: tools, figure, chart */
+.lvl{font-size:22px;color:var(--muted);font-weight:normal;margin-left:14px}
+.side{width:330px;display:flex;flex-direction:column;gap:12px}
+.side .card{padding:14px 16px}
+.side h3{font-size:24px;margin:0 0 8px;color:var(--navy)}
+.side p,.side li{font-size:21px;line-height:1.3;margin:0 0 6px}
+.side ul{list-style:none;padding:0;margin:0}
+.side li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.side li span{font-weight:bold;color:var(--muted);white-space:nowrap}
+.side li.done span{color:var(--stu)}
+.side li.right span{color:var(--stu)} .side li.wrong span{color:var(--ai)}
+.bar.sm{height:44px;font-size:20px}
+.tcard{flex:1;text-align:left;border:1px solid #B8C2CF;border-radius:8px;background:#fff;padding:20px;display:flex;flex-direction:column;gap:10px;min-height:300px}
+.tcard i{font-style:normal;font-size:21px;color:var(--muted)}
+.tcard b{font-size:31px;color:var(--navy);line-height:1.1}
+.tcard span{font-size:23px;line-height:1.3}
+.tcard .bar{margin-top:auto;height:26px;font-size:0}
+.tcard.subs{border-top:6px solid var(--brown)} .tcard.supp{border-top:6px solid var(--navy)}
+.cfig text{font-family:"Times New Roman",Times,serif;font-size:23px;font-weight:bold;fill:#1B365D;text-anchor:middle;pointer-events:none}
+.cfig line{stroke:#9AA6B4;stroke-width:2}
+.cfig .node{cursor:pointer}
+.cfig .node rect,.cfig .node ellipse{fill:#fff;stroke:#1B365D;stroke-width:2}
+.cfig .node.on rect,.cfig .node.on ellipse{fill:#1B365D}
+.cfig .node.on text{fill:#fff}
+.cfig .node:focus-visible rect,.cfig .node:focus-visible ellipse{stroke:#2F6FED;stroke-width:5}
+#triText h3{font-size:32px;margin:0 0 6px;color:var(--navy)}
+#triText .for{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+#triText .for b{color:var(--brown)}
+.erow{display:grid;grid-template-columns:440px 1fr 190px;align-items:center;gap:16px;margin-bottom:16px;font-size:26px}
+.etrack{height:42px;background:var(--soft);border-radius:4px;position:relative}
+.efill{height:100%;background:var(--navy);border-radius:4px;transition:width .5s}
+.efill.top{background:var(--brown)}
+.emark{position:absolute;top:-7px;bottom:-7px;border-left:2px dashed var(--muted)}
+.eval{font-weight:bold;color:var(--navy)} .eval small{font-weight:normal;color:var(--muted);font-size:19px}
+.passage{font-size:25px;line-height:1.5;margin:0}
+.passage.big{font-size:32px}
+.passage.wide{letter-spacing:.05em;word-spacing:.22em;line-height:1.85}
+.passage .s.on{background:#F1E4D6}
+.term{font:inherit;color:inherit;background:none;border:0;border-bottom:2px dotted var(--brown);padding:0;letter-spacing:inherit}
+.defn{min-height:40px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.chat{display:flex;flex-direction:column}
+.cfig .node.hl rect{stroke:#8B5E3A;stroke-width:3}
+#fw .node{cursor:default}
+#moves{width:100%;border-collapse:collapse;font-size:26px}
+#moves th{text-align:left;font-size:22px;color:var(--muted);font-weight:normal;padding:6px 12px;border-bottom:2px solid var(--navy)}
+#moves td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.25}
+#moves td:first-child{width:52%;font-weight:bold;color:var(--navy)}
+#moves td span{display:none}
+#moves td.open span{display:inline}
+#moves td.open .rv{display:none}
+.rv{font-size:19px;padding:4px 14px;border-radius:6px;border:1px solid #B8C2CF;background:#fff;color:var(--navy);font-weight:bold}
+.donuts{display:flex;gap:16px;margin-top:4px}
+.dn{flex:1;background:#fff;border:1px solid #B8C2CF;border-radius:8px;padding:14px 14px 10px;text-align:left;display:flex;flex-direction:column;align-items:center}
+.dn.on{border:2px solid var(--navy);padding:13px 13px 9px}
+.dn h3{font-size:25px;margin:0 0 8px;color:var(--navy);align-self:flex-start}
+.dn ul{list-style:none;padding:0;margin:10px 0 0;align-self:stretch}
+.dn li{font-size:19px;line-height:1.25;margin:0 0 5px;padding-left:24px;position:relative}
+.dn li i{position:absolute;left:0;top:4px;width:15px;height:15px;border-radius:50%;border:1px solid #9AA6B4}
+.gboard{display:flex;gap:10px;margin-bottom:10px}
+.gcard{flex:1;border:1px solid #B8C2CF;border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;min-height:128px}
+.gcard b{color:var(--navy)}
+.gcard p{margin:0;font-size:.95em;line-height:1.25}
+.gcard i{font-style:normal;margin-top:auto;font-size:.85em;font-weight:bold;color:var(--brown)}
+.gcard textarea{height:58px!important;font-size:.9em!important}
+.gcard .tb{align-self:flex-start}
+.tools5{gap:12px!important}
+.tools5 .tcard{padding:16px 14px;min-height:310px}
+.tools5 .tcard b{font-size:26px}
+.tools5 .tcard span{font-size:21px}
+.tools5 .tcard i{font-size:19px}
+.mayaline{font-size:24px;line-height:1.3;margin:0 0 14px;padding:10px 16px;background:var(--soft);border-radius:8px}
+#s-hook h2{margin-bottom:14px}
+#s-hook .choice{min-height:205px;font-size:28px;padding:20px 24px}
+#s-hook #hookLine{margin-top:16px}
+.dleg{list-style:none;padding:0;margin:0}
+.dleg li{font-size:19px;line-height:1.25;margin:0 0 6px;padding-left:22px;position:relative}
+.dleg i{position:absolute;left:0;top:4px;width:14px;height:14px;border-radius:50%}
+.dialrow{padding:10px 18px 6px;border-bottom:1px solid var(--line)}
+#dial{width:100%;height:28px;accent-color:var(--brown);margin:0}
+.stops{display:flex;justify-content:space-between}
+.stops button{font-size:20px;font-weight:bold;background:none;border:0;color:var(--muted);padding:4px 0}
+.stops button.on{color:var(--navy);text-decoration:underline;text-underline-offset:5px}
+.always{font-size:18px;color:var(--muted);padding:6px 18px;border-top:1px solid var(--line)}
+.side.wide{width:500px}
+.side .card{display:flex;flex-direction:column}
+.para{font-size:21px;line-height:1.42;margin:0 0 10px;min-height:150px}
+.wm{color:#1B365D;background:#E3EAF3}
+.wa{color:#6F4520;background:#F1E4D6}
+#dQs li.qai span{color:var(--ai)} #dQs li.qstu span{color:var(--stu)} #dQs li.qnone span{color:var(--muted)}
+.steps{padding-left:32px;margin:0}
+.steps li{font-size:26px;line-height:1.3;margin-bottom:12px}
+#cp{font-family:inherit;font-size:21px;line-height:1.35;white-space:pre-wrap;margin:0 0 10px;overflow:auto;color:var(--ink)}
+.mind{padding-left:22px;margin:0}
+.mind li{font-size:22px;line-height:1.3;margin-bottom:8px}
+#s-take .take p{font-size:31px}
+#s-article .card.one{flex:1.35;padding:18px 20px}
+.para{font-size:23px}
+.duo{flex:1;display:flex;gap:18px;min-height:0}
+.duo .panel{flex:1}
+.duo .tbody{font-size:21px}
+.vq{list-style:none;margin:0;padding:4px 16px 8px;border-top:1px solid var(--line)}
+.vq li{display:flex;justify-content:space-between;gap:10px;font-size:20px;padding:4px 0}
+.vq li span{font-weight:bold;color:var(--muted);white-space:nowrap}
+.vq li.qai span{color:var(--ai)} .vq li.qstu span{color:var(--stu)} .vq li.qnone span{color:var(--muted)}
+.vnote{font-weight:bold;color:var(--navy);margin:2px 0 8px}
+.vbar{display:flex;align-items:center;gap:12px;margin-top:12px}
+.vbar .btn{font-size:20px;padding:7px 18px}
+.vprog{flex:1;height:8px;background:var(--soft);border-radius:4px;overflow:hidden}
+.vprog i{display:block;height:100%;width:0;background:var(--brown)}
+#cpPanel{position:absolute;left:170px;right:170px;top:70px;background:#fff;border:2px solid var(--navy);border-radius:8px;padding:20px 26px;box-shadow:0 8px 30px rgba(27,54,93,.25)}
+#cpPanel[hidden]{display:none}
+#cpPanel h3{font-size:30px;margin:0 0 10px;color:var(--navy)}
+.duo .thead{min-height:54px}
+#s-vote h2{font-size:42px;margin-bottom:14px}
+.vote,.hold{flex:1;font-size:34px;font-weight:bold;color:var(--navy);background:#fff;border:1px solid #B8C2CF;border-radius:8px;padding:34px 16px}
+.vote.on,.hold.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.hold{font-size:30px;padding:26px 12px}
+#voteLine,#tfLine,#goalLine,#holdLine{font-size:28px;margin:18px 0 0;min-height:38px;color:var(--navy)}
+.tfgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tfc{border:1px solid #B8C2CF;border-radius:8px;padding:14px 18px;min-height:176px;display:flex;flex-direction:column}
+.tfc .st{font-size:27px;font-weight:bold;color:var(--navy);margin:0 0 8px;line-height:1.2}
+.tfc .acts{margin-top:auto}
+.tfc .tb{font-size:21px;padding:6px 22px}
+.tfc .ans{font-size:22px;margin:0;line-height:1.3;display:none}
+.tfc.done .ans{display:block}
+.tfc.done .acts{display:none}
+.tfc.done{border:2px solid var(--navy);padding:13px 17px}
+#tfLine{margin-top:12px}
+#acts{width:100%;border-collapse:collapse;font-size:27px}
+#acts th{text-align:left;font-size:21px;color:var(--muted);font-weight:normal;padding:4px 12px;border-bottom:2px solid var(--navy)}
+#acts td{padding:10px 12px;border-bottom:1px solid var(--line);line-height:1.2}
+#acts td:first-child{width:58%}
+#acts span{font-weight:bold}
+.rb{color:var(--stu)} .rl{color:var(--ai)} .rt{color:var(--stu)}
+.rl::before{content:"✕ "} .rb::before,.rt::before{content:"✓ "}
+#goalLine{margin-top:12px}
+.q3{margin:0;padding-left:28px}
+.q3 li{font-size:25px;line-height:1.3;margin-bottom:6px}
+#s-dial .para{min-height:0}
+#dQs li{padding:4px 0}
+.refs a{color:var(--navy)}
+#s-template h2{font-size:40px;margin-bottom:12px}
+#tpl{width:100%;border-collapse:collapse;font-size:20px}
+#tpl th{text-align:left;font-size:19px;color:var(--muted);font-weight:normal;padding:2px 10px;border-bottom:2px solid var(--navy)}
+#tpl td{padding:4px 10px;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.2}
+#tpl td:first-child{width:150px;font-weight:bold;color:var(--navy);font-size:22px}
+#tpl td:nth-child(2){width:400px}
+#tpl textarea{width:100%;height:48px;resize:none;font-size:18.5px;line-height:1.2;padding:3px 8px;border:1px solid #B8C2CF;border-radius:6px;background:#fff;display:block}
+#s-template .btn{font-size:20px;padding:7px 16px}
+#s-template{padding-top:38px}
+#tpl td{padding:3px 10px}
+#tpl textarea{height:42px;font-size:18px;line-height:1.15}
+#tpl textarea{height:48px;padding:2px 8px}
+#s-title{text-align:center;align-items:center}
+#s-title .who{align-self:stretch}
+a.btn{text-decoration:none;display:inline-block}
+</style>
+</head>
+<body>
+<main id="stage">
+
+<section class="slide" id="s-title" aria-label="Title">
+  <p class="kicker" style="font-size:26px">AI as Support, Not Substitute: Promoting Agency for Students With Disabilities</p>
+  <h1>Who Is Doing<br>the <em>Thinking?</em></h1>
+  <p style="font-size:34px">Student agency and metacognition with AI</p>
+  <p class="who">Ling Zhang, Ph.D. <span>University of Wyoming</span><br>Haidee Jackson, Ph.D. <span>The University of Texas Permian Basin</span></p>
+  <aside><b>Both, about 45 seconds.</b> Introduce yourselves. Ling: this segment highlights our 2024 meta-analysis of AI for students with disabilities, and a 2025 follow-up that turns the findings into design guidance. One question runs through everything today: who is doing the thinking?</aside>
+</section>
+
+<section class="slide" id="s-maya" aria-label="Meet the student">
+  <p class="kicker">Our student for today</p>
+  <h2>Meet Maya</h2>
+  <div class="row">
+    <div class="card grow">
+      <p><b>Maya</b> is a seventh grader in an inclusive science class.</p>
+      <p>She has a learning disability that affects her writing.</p>
+      <p>She explains ideas well out loud. Getting them onto the page is hard.</p>
+      <p class="small" style="margin:0">Maya is a made-up student.</p>
+    </div>
+    <div class="card grow" style="background:var(--navy);color:#fff;border-color:var(--navy)">
+      <p style="color:#D5DCE6;font-size:24px">Today’s task</p>
+      <p style="font-size:36px;line-height:1.25">Write a paragraph that explains why we have seasons. Use evidence.</p>
+    </div>
+  </div>
+  <p style="margin-top:28px;font-size:32px">We will follow Maya and this one task from start to finish.</p>
+  <aside><b>Haidee, about 20 seconds.</b> Introduce Maya and the task. She appears in the research slides and in every tool.</aside>
+</section>
+
+<section class="slide" id="s-article" aria-label="The article">
+  <p class="kicker">The article: Zhang, Carter, Liu, and Peng (2024)</p>
+  <h2>The first meta-analysis of AI for students with disabilities</h2>
+  <div class="row" style="margin-top:4px">
+    <div class="card grow"><div class="num">29</div><div class="numlab">experimental studies, 1994 to 2023, preschool to Grade 12, from 12 countries and regions</div></div>
+    <div class="card grow"><div class="num" id="gnum">0.59</div><div class="numlab" id="glab">average effect on learning (Hedges’ g): a medium, positive effect</div>
+      <button class="btn" id="gbtn" style="margin-top:14px">Adjust for publication bias</button></div>
+  </div>
+  <p style="margin-top:24px">The tools were social robots, speech recognition, tutoring and expert systems, and intelligent virtual reality.</p>
+  <p><b>Yes, AI helped.</b> We then asked how: who was involved, and who did what?</p>
+  <p class="src">Zhang, Carter, Liu, and Peng (2024), <i>Review of Educational Research</i>.</p>
+  <aside><b>Ling, about 30 seconds.</b> We pooled 29 experimental studies. On average, AI had a medium positive effect on learning. Click the button: after adjusting for publication bias the effect is smaller, about 0.27, and still positive. So AI helped. The more useful question for teachers is how.</aside>
+</section>
+
+<section class="slide" id="s-dots" aria-label="Inside the studies">
+  <p class="kicker">The article: what the studies looked like (Table 2)</p>
+  <h2>Look inside the 29 studies</h2>
+  <div class="donuts" id="donuts"></div>
+  <p id="finding" aria-live="polite"></p>
+  <p class="src">Zhang, Carter, Liu, and Peng (2024), Table 2. Each circle shows all 29 studies.</p>
+  <aside><b>Ling, about 40 seconds.</b> Each circle shows all 29 studies. Click the four circles in order. Most studies involved students with autism and robots. In 28 of 29, the AI delivered step-by-step instruction. End on the last circle: in only two studies did the student teach or program the AI. The student as an active agent is almost missing from the research.</aside>
+</section>
+
+<section class="slide" id="s-frame" aria-label="Design framework">
+  <p class="kicker">From findings to guidance: Zhang, Carter, and Lim (2025)</p>
+  <h2>Our lens: AI is one part of an activity</h2>
+  <div class="row" style="gap:10px;margin-bottom:10px" id="levels">
+    <button class="btn" data-l="0">1. Access</button>
+    <button class="btn" data-l="1">2. Thinking (metacognition)</button>
+    <button class="btn" data-l="2">3. Agency</button>
+  </div>
+  <div class="row" style="gap:20px;flex:1;min-height:0;margin-bottom:30px">
+    <svg class="cfig" id="fw" viewBox="0 0 760 420" width="630" height="348" role="img" aria-label="Activity system diagram with the design principle placed between the student and the AI tool">
+      <line x1="380" y1="52" x2="150" y2="200"/><line x1="380" y1="52" x2="520" y2="200"/><line x1="150" y1="200" x2="520" y2="200"/>
+      <line x1="150" y1="200" x2="120" y2="370"/><line x1="150" y1="200" x2="370" y2="370"/><line x1="520" y1="200" x2="370" y2="370"/>
+      <line x1="520" y1="200" x2="630" y2="370"/><line x1="120" y1="370" x2="630" y2="370"/><line x1="380" y1="52" x2="370" y2="370"/>
+      <line x1="520" y1="200" x2="690" y2="200" style="stroke-width:6"/>
+      <g class="node"><rect x="290" y="20" width="180" height="64" rx="8"/><text x="380" y="60">AI tool</text></g>
+      <g class="node"><rect x="60" y="168" width="180" height="64" rx="8"/><text x="150" y="208">Student</text></g>
+      <g class="node"><rect x="425" y="168" width="190" height="64" rx="8"/><text x="520" y="208">Learning task</text></g>
+      <g class="node"><ellipse cx="695" cy="200" rx="62" ry="40"/><text x="695" y="208" style="font-size:21px">Outcome</text></g>
+      <g class="node hl"><rect x="40" y="338" width="160" height="64" rx="8"/><text x="120" y="378">Rules</text></g>
+      <g class="node hl"><rect x="280" y="338" width="180" height="64" rx="8"/><text x="370" y="378">Community</text></g>
+      <g class="node hl"><rect x="530" y="338" width="200" height="64" rx="8"/><text x="630" y="378">Who does what</text></g>
+      <g><rect x="62" y="98" width="330" height="48" rx="6" style="fill:#8B5E3A"/><text id="fwP" x="227" y="130" style="fill:#fff;font-size:21px"></text></g>
+    </svg>
+    <div class="card grow" id="fwText" aria-live="polite" style="padding:16px 20px"></div>
+  </div>
+  <p class="src">Adapted from Figure 1 in Zhang et al. (2024) and Figures 2 to 4 in Zhang, Carter, and Lim (2025). The bar shows direction, not exact amounts.</p>
+  <aside><b>Ling, about 50 seconds.</b> Our lens is cultural-historical activity theory. In plain terms, an AI tool never works alone: there is a student, a task, rules, a community, and a division of who does what. The brown label is the design principle. The slide opens on level 2, thinking, where metacognition lives: the AI should not take over goal setting, problem solving, or self-reflection. Click Access and Agency to show how the load shifts. This is design guidance; it has not been tested yet.</aside>
+</section>
+
+<section class="slide" id="s-goal" aria-label="It depends on the goal">
+  <p class="kicker">Use the framework: the learning task decides who should do what</p>
+  <h2>Support or substitute? It depends on the goal.</h2>
+  <div class="row" style="gap:10px;margin-bottom:14px;align-items:center" id="goals">
+    <span style="font-size:26px;font-weight:bold;color:var(--navy)">Maya’s goal today:</span>
+    <button class="btn" data-g="0">Explain the science</button>
+    <button class="btn" data-g="1">Learn to write a paragraph</button>
+  </div>
+  <table id="acts"><thead><tr><th>The AI…</th><th>What it does for Maya</th></tr></thead><tbody></tbody></table>
+  <p id="goalLine" aria-live="polite"></p>
+  <p class="src">An application of the framework in Zhang, Carter, and Lim (2025). The ratings are one reasonable reading; teams will disagree, and that is the conversation to have.</p>
+  <aside><b>Haidee, about 1 minute 40 seconds.</b> Start on “Explain the science.” For each row, ask viewers to decide, then click the row to show a rating. Now switch the goal to “Learn to write a paragraph” and watch three rows change. The AI did not change; the goal did. Special educators know this as the difference between an accommodation and a modification. These ratings are ours, not findings from the articles, and reasonable people will disagree on some rows.</aside>
+</section>
+
+<section class="slide toolslide" id="s-dial" aria-label="One assistant, one dial">
+  <h2>Demonstration: one assistant, one dial <span class="lvl">Who carries the load?</span></h2>
+  <div class="tool">
+    <div class="panel">
+      <div class="thead"><span class="name">Writing Assistant (mock-up)</span><button id="cpShow">Show the coaching prompt</button><button id="dReplay">Replay</button></div>
+      <div class="dialrow">
+        <input type="range" id="dial" min="1" max="4" step="1" value="1" aria-label="How much the AI does">
+        <div class="stops" id="stops"></div>
+      </div>
+      <div class="tbody" id="dBody" aria-live="polite"></div>
+      <div class="always">Read aloud and speech to text: always on</div>
+    </div>
+    <div class="side wide">
+      <div class="card" style="flex:1"><h3>Maya’s finished paragraph</h3>
+        <p id="dPara" class="para"></p>
+        <div class="bar sm" style="margin-top:auto" aria-hidden="true"><div class="bai" id="dAI"></div><div class="bstu" id="dMe"></div></div>
+        <p id="dShare" class="small" style="margin:6px 0 0"></p>
+      </div>
+      <div class="card"><ul id="dQs" aria-live="polite"></ul><p id="dNote" style="margin:8px 0 0;font-weight:bold;color:var(--navy)"></p></div>
+    </div>
+  </div>
+  <div id="cpPanel" role="dialog" aria-label="The coaching prompt" hidden>
+    <h3>The prompt behind “Coach me”</h3>
+    <pre id="cp">You are a writing coach for a seventh-grade student. Do not write any part of my assignment for me, even if I ask.
+
+1. First, ask me to say the task in my own words.
+2. Ask me to set one goal for my writing and to choose how I will start.
+3. When I share a draft, compare it with my goal. Tell me what I have met and what I have not met yet. Ask one question that helps me find the problem myself. Do not give me the answer.
+4. Let me decide what to change.
+5. At the end, ask whether I met my goal and what I will do next time.
+
+Use short sentences. Ask one question at a time. I may speak my answers, so ignore my spelling.</pre>
+    <p class="small" style="margin:0 0 10px">Test it first. A prompt guides a chatbot; it cannot guarantee what the chatbot does. Follow your school’s rules on student data.</p>
+    <div class="acts" style="margin-top:0"><button class="btn primary" id="cpBtn">Copy the prompt</button><button class="btn" id="cpClose">Close</button><span id="cpMsg" class="small" aria-live="polite"></span></div>
+  </div>
+  <aside><b>Both, about 4 minutes.</b> Haidee moves the dial one stop at a time, left to right; Ling narrates. The conversation plays on the left. On the right, Maya’s finished paragraph is color-coded: brown for the AI’s words, navy for Maya’s. At “Fix it for me,” point out that the mistake about distance disappears and Maya never learns why. At “Coach me,” point out that every word is Maya’s and she caught her own mistake. Under the three questions, point to the time each stop took and what Maya writes the next day without the tool; these are illustrations. Then ask viewers: which stop would you choose on a day Maya is exhausted? On the day before a writing test? Support is a dial, not a switch, and the access tools stay on at every stop. Last, ask who should hold the dial. Most tools arrive set to “Write it for me,” so if no one chooses, the default chooses. Agency means Maya learns to choose her own stop and say why. Press Replay to play a stop again. To finish, click “Show the coaching prompt”: teachers can paste it into a chatbot their school allows to get the “Coach me” behavior. The prompt has not been tested on every chatbot, so say that teachers should try it first.</aside>
+</section>
+
+<section class="slide" id="s-template" aria-label="Design template">
+  <p class="kicker">Take this with you</p>
+  <h2>A template for designing AI that promotes student agency</h2>
+  <table id="tpl">
+    <thead><tr><th>Part</th><th>Do this</th><th>Your plan</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <div class="acts" style="margin-top:10px">
+    <button class="btn primary" id="tplFill">Fill in for Maya</button>
+    <button class="btn" id="tplClear">Clear</button>
+    <button class="btn" id="tplCopy">Copy the template</button>
+    <a class="btn" id="tplDoc" href="AI_Agency_Design_Template_Handout.docx" download>Download the handout</a>
+    <span id="tplMsg" class="small" aria-live="polite"></span>
+  </div>
+  <p class="src">Built from the parts of the CHAT triangle and the three design principles in Zhang, Carter, and Lim (2025). The framework is guidance and has not been tested yet.</p>
+  <aside><b>Both, about 1 and a half minutes.</b> Ling: this template turns the triangle and the three design principles into eight steps. A teacher candidate, or a tool designer, works through them before using AI with a student. The handout has the fuller version, with a do and a do not for each principle. Click “Fill in for Maya” and walk through two or three rows, not all eight: the learning goal, the thinking row, and the agency row. Haidee: point out that the first two rows come before any decision about the AI. “Copy the template” copies all eight steps, with whatever is typed in, to paste into a document. “Download the handout” opens the two-page Word handout; it works on the GitHub page when the handout file sits beside index.html. Close by naming the limits: the 29 studies came before today’s chatbots, and the Writing Assistant was a mock-up.</aside>
+</section>
+
+<section class="slide" id="s-refs" aria-label="References">
+  <h2>References</h2>
+  <div class="refs">
+    <p>Salomon, G., Perkins, D. N., &amp; Globerson, T. (1991). Partners in cognition: Extending human intelligence with intelligent technologies. <i>Educational Researcher, 20</i>(3), 2–9. <a href="https://doi.org/10.3102/0013189X020003002">https://doi.org/10.3102/0013189X020003002</a></p>
+    <p>Zhang, L., Carter, R. A., Jr., &amp; Lim, S. N. (2025). Designing intelligent agents for students with disabilities: Promoting inclusion and equity through the lens of cultural-historical activity theory. <i>Journal of Special Education Technology</i>. Advance online publication. <a href="https://doi.org/10.1177/01626434251349405">https://doi.org/10.1177/01626434251349405</a></p>
+    <p>Zhang, L., Carter, R. A., Jr., Liu, Y., &amp; Peng, P. (2024). Let’s CHAT about artificial intelligence for students with disabilities: A systematic literature review and meta-analysis. <i>Review of Educational Research</i>. Advance online publication. <a href="https://doi.org/10.3102/00346543241293424">https://doi.org/10.3102/00346543241293424</a></p>
+  </div>
+  <aside>Leave this slide up at the end, or share it in the supplemental materials.</aside>
+</section>
+
+</main>
+
+<div id="notes" aria-live="polite"></div>
+<nav id="chrome" aria-label="Slide controls">
+  <button id="prev" aria-label="Previous slide">◀</button>
+  <span id="count"></span>
+  <button id="next" aria-label="Next slide">▶</button>
+  <div id="prog"><i></i></div>
+  <button id="nbtn" aria-pressed="false">Notes (N)</button>
+  <button id="fbtn">Full screen (F)</button>
+</nav>
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var calm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
+function speak(t){try{if(!window.speechSynthesis||!t)return;speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(t))}catch(e){}}
+function setQ(id,txt,cls){var el=$("#"+id);el.className="sq"+(cls?" is"+cls:"");$(".a",el).textContent=txt}
+var timers={};
+function type(key,el,text,done){
+  if(timers[key])clearInterval(timers[key]);
+  var put=function(t){if(el.tagName==="TEXTAREA"||el.tagName==="INPUT")el.value=t;else el.textContent=t};
+  if(calm){put(text);done&&done();return}
+  var i=0;timers[key]=setInterval(function(){i+=3;put(text.slice(0,i));if(i>=text.length){clearInterval(timers[key]);timers[key]=null;done&&done()}},18);
+}
+
+/* ---------- deck ---------- */
+var stage=$("#stage"), slides=$$(".slide"), cur=0;
+function fit(){var h=innerHeight-46,s=Math.min(innerWidth/1280,h/720);stage.style.transform="scale("+s+")";stage.style.left=(innerWidth-1280*s)/2+"px";stage.style.top=(h-720*s)/2+"px";}
+function go(n){cur=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,i){s.classList.toggle("active",i===cur)});
+  $("#count").textContent=(cur+1)+" / "+slides.length;$("#prog i").style.width=((cur+1)/slides.length*100)+"%";
+  var a=$("aside",slides[cur]);$("#notes").innerHTML=a?a.innerHTML:"";
+  try{history.replaceState(null,"","#"+(cur+1))}catch(e){}}
+addEventListener("resize",fit);fit();
+$("#prev").onclick=function(){go(cur-1)};$("#next").onclick=function(){go(cur+1)};
+$("#nbtn").onclick=toggleNotes;$("#fbtn").onclick=full;
+function toggleNotes(){var on=$("#notes").classList.toggle("show");$("#nbtn").setAttribute("aria-pressed",on)}
+function full(){var d=document;if(d.fullscreenElement){d.exitFullscreen()}else if(d.documentElement.requestFullscreen){d.documentElement.requestFullscreen()}}
+addEventListener("keydown",function(e){
+  var t=e.target,tag=t.tagName,typing=tag==="INPUT"||tag==="TEXTAREA";
+  if(typing||e.ctrlKey||e.metaKey||e.altKey)return;
+  var k=e.key,isBtn=tag==="BUTTON"||t.getAttribute&&t.getAttribute("role")==="button";
+  if(k==="ArrowRight"||k==="PageDown"){go(cur+1);e.preventDefault()}
+  else if(k==="ArrowLeft"||k==="PageUp"){go(cur-1);e.preventDefault()}
+  else if(k===" "&&!isBtn){go(cur+1);e.preventDefault()}
+  else if(k==="Home")go(0); else if(k==="End")go(slides.length-1);
+  else if(k==="n"||k==="N")toggleNotes(); else if(k==="f"||k==="F")full();
+});
+$$("[data-go]").forEach(function(b){b.onclick=function(){var i=slides.indexOf($("#"+b.dataset.go));if(i>=0)go(i)}});
+go((parseInt(location.hash.slice(1),10)||1)-1);
+
+/* ---------- article: effect ---------- */
+var adj=false;
+$("#gbtn").onclick=function(){adj=!adj;var from=adj?0.59:0.27,to=adj?0.27:0.59,el=$("#gnum"),n=0,steps=calm?1:24;
+  var t=setInterval(function(){n++;el.textContent=(from+(to-from)*n/steps).toFixed(2);if(n>=steps)clearInterval(t)},25);
+  $("#glab").textContent=adj?"after adjusting for publication bias: smaller, and still positive":"average effect on learning (Hedges’ g): a medium, positive effect";
+  this.textContent=adj?"Show the original estimate":"Adjust for publication bias";};
+
+/* ---------- circle charts ---------- */
+var COL=["#1B365D","#9AA6B4","#8B5E3A","#D5DCE6"];
+var views=[
+ {t:"Who was studied",g:[["Autism",19],["Learning disability",6],["Intellectual or developmental disability",3],["Deaf or hard of hearing",1]],c:0,f:"Two thirds of the studies involved students with autism."},
+ {t:"What kind of AI",g:[["Robots",20],["Computer software",6],["Intelligent virtual reality",3]],c:0,f:"Most tools were robots, and most were run by a person behind the scenes."},
+ {t:"How students learned",g:[["Step-by-step instruction from the AI",28],["No formal instruction",1]],c:0,f:"In 28 of 29 studies, the AI led the student through the steps."},
+ {t:"What the AI did",g:[["Coach or companion",19],["Instructional or learning tool",8],["Taught by the student",2]],c:2,f:"Only 2 studies put the student in charge, as the one who teaches the AI."}
+];
+function donut(v){var C=2*Math.PI*70,off=0,s='<svg viewBox="0 0 200 200" width="190" height="190" aria-hidden="true"><g transform="rotate(-90 100 100)">';
+  v.g.forEach(function(g,i){var len=g[1]/29*C;s+='<circle cx="100" cy="100" r="70" fill="none" stroke="'+COL[i]+'" stroke-width="34" stroke-dasharray="'+Math.max(len-2,1)+" "+(C-Math.max(len-2,1))+'" stroke-dashoffset="'+(-off)+'"/>';off+=len});
+  s+='</g><text x="100" y="108" text-anchor="middle" style="font-family:\'Times New Roman\',Times,serif;font-size:46px;font-weight:bold;fill:'+(v.c===2?"#8B5E3A":"#1B365D")+'">'+v.g[v.c][1]+'</text><text x="100" y="130" text-anchor="middle" style="font-family:\'Times New Roman\',Times,serif;font-size:17px;fill:#5A6A7A">of 29</text></svg>';return s}
+$("#donuts").innerHTML=views.map(function(v,i){return '<button class="dn" data-v="'+i+'" aria-label="'+v.t+": "+v.g.map(function(g){return g[1]+" "+g[0]}).join(", ")+'"><h3>'+v.t+"</h3>"+donut(v)+"<ul>"+v.g.map(function(g,gi){return '<li><i style="background:'+COL[gi]+'"></i><b>'+g[1]+"</b> "+g[0]+"</li>"}).join("")+"</ul></button>"}).join("");
+function showView(i){$("#finding").textContent=views[i].f;$$("#donuts .dn").forEach(function(b,bi){b.classList.toggle("on",bi===i)})}
+$$("#donuts .dn").forEach(function(b){b.onclick=function(){showView(+b.dataset.v)}});showView(0);
+
+/* ---------- design framework ---------- */
+var levels=[
+ {ai:78,p:"Enhancing accessibility",h:"Enhance access to what students see, hear, and do",lv:"Conditions and operations: the automatic parts of a task",ru:"Accessibility standards, such as the Web Content Accessibility Guidelines",tool:"Read and Speak"},
+ {ai:50,p:"Guiding (meta)cognitive processing",h:"Guide thinking toward the student’s own goals",lv:"Goals and actions: the conscious, goal-driven parts of a task",ru:"Learning theories: self-regulated learning, metacognition, and cognitive load. Do not automate goal setting, problem solving, or self-reflection.",tool:"Thinking Coach"},
+ {ai:24,p:"Promoting agency and contribution",h:"Promote agency through strengths and cultural experiences",lv:"Motive and activity: why the student takes part",ru:"Strengths-based and culturally relevant teaching; self-determination theory",tool:"Teach the AI"}
+];
+function showLevel(i){var L=levels[i];$("#fwP").textContent=L.p;
+  $("#fwText").innerHTML="<h3 style='font-size:28px;margin:0 0 4px;color:var(--navy)'>"+L.h+"</h3><p class='small' style='margin:0 0 10px'>"+L.lv+"</p>"+
+   "<p style='font-size:22px;margin:0 0 8px'><b>Rules to design by:</b> "+L.ru+"</p>"+
+   "<p style='font-size:22px;margin:0 0 8px'><b>Community:</b> educators and peers stay involved.</p>"+
+   "<p style='font-size:22px;margin:0 0 6px'><b>Who does what:</b></p><div class='bar sm' aria-hidden='true'><div class='bai' style='width:"+L.ai+"%'>AI</div><div class='bstu' style='width:"+(100-L.ai)+"%'>Student</div></div>"+
+   "";
+  $$("#levels .btn").forEach(function(b,bi){b.classList.toggle("on",bi===i)})}
+$$("#levels .btn").forEach(function(b){b.onclick=function(){showLevel(+b.dataset.l)}});showLevel(1);
+$$("#moves .rv").forEach(function(b){b.onclick=function(){b.parentNode.classList.add("open")}});
+
+/* ---------- demonstration 1: the dial ---------- */
+var D_AI="Earth has seasons because its axis is tilted. As Earth orbits the Sun, the northern half leans toward the Sun for part of the year and away from it for the rest. When it leans toward the Sun, sunlight hits more directly and the days are longer, so it is summer. When it leans away, the light is spread out and the days are shorter, so it is winter.";
+var D_D1="We have seasons because the Earth is tilted. In summer the Earth is closer to the Sun so it is hot. In winter we lean away and the days are short.";
+var D_D2="We have seasons because Earth is tilted as it orbits the Sun. When our half of Earth leans toward the Sun, the light hits us more directly and the days are long, so it is summer. When we lean away, the light is spread out and the days are short. It is not about distance, because when it is summer here it is winter in Australia.";
+var STOPS=[
+ {n:"Write it for me",
+  chat:[["m","Write my paragraph about why we have seasons."],["a","Done. Your paragraph is ready to turn in."]],
+  para:[["a",D_AI]],q:["The AI","No one","No one"],qc:["ai","none","none"],note:"Maya turns in a paragraph she did not write."},
+ {n:"Fix it for me",
+  chat:[["m","Here is my draft. Fix it for me."],["m",D_D1],["a","I fixed the science and the wording. It is ready to turn in."]],
+  para:[["m","We have seasons because the Earth is tilted"],["a"," on its axis as it orbits the Sun. In summer, our half of Earth leans toward the Sun and gets more direct sunlight, so it is warmer. "],["m","In winter we lean away and the days are"],["a"," shorter, so it is colder."]],
+  q:["The AI","The AI","The AI"],qc:["ai","ai","ai"],note:"The mistake about distance is gone. Maya never learns why."},
+ {n:"Give me a start",
+  chat:[["m","Help me get started."],["a","Fill in the blanks. Earth has seasons because ___. In summer, our half of Earth ___. One piece of evidence is ___."],["m","It is tilted. It leans toward the Sun and gets more direct light. The days are longer in summer."]],
+  para:[["a","Earth has seasons because "],["m","it is tilted"],["a",". In summer, our half of Earth "],["m","leans toward the Sun and gets more direct light"],["a",". One piece of evidence is "],["m","that the days are longer in summer"],["a","."]],
+  q:["The AI","No one","Maya"],qc:["ai","none","stu"],note:"A useful scaffold. The AI still chose the structure."},
+ {n:"Coach me",
+  chat:[["a","Before you write: what is the task asking, in your own words?"],["m","Explain why we have seasons, and back it up."],["a","What is your goal for this paragraph?"],["m","Use the words tilt and orbit, and give two pieces of evidence."],["m",D_D1],["a","Against your goal: “tilt” yes, “orbit” not yet, and one piece of evidence so far. You wrote that Earth is closer in summer. It is winter in Australia then. Can both be true?"],["m","No. It is not about distance. I will fix it myself."]],
+  para:[["m",D_D2]],q:["Maya","Maya, with AI feedback","Maya"],qc:["stu","stu","stu"],note:"Slower. Every word is Maya’s, and she caught her own mistake."}
+];
+var QN=["Who sets the goal?","Who checks the work?","Who decides what comes next?"],dT=null;
+$("#stops").innerHTML=STOPS.map(function(s,i){return '<button data-s="'+(i+1)+'">'+s.n+"</button>"}).join("");
+function words(t){return t.split(/\s+/).filter(function(w){return /[A-Za-z]/.test(w)}).length}
+function result(S,show){
+  $("#dPara").innerHTML=show?S.para.map(function(p){return '<span class="'+(p[0]==="m"?"wm":"wa")+'">'+esc(p[1])+"</span>"}).join(""):"";
+  var m=0,a=0;S.para.forEach(function(p){if(p[0]==="m")m+=words(p[1]);else a+=words(p[1])});var pm=Math.round(m/(m+a)*100);
+  $("#dAI").style.width=show?(100-pm)+"%":"50%";$("#dMe").style.width=show?pm+"%":"50%";
+  $("#dAI").textContent=show&&pm<85?"AI":"";$("#dMe").textContent=show&&pm>15?"Maya":"";
+  $("#dAI").style.opacity=$("#dMe").style.opacity=show?1:.25;
+  $("#dShare").textContent=show?pm+" percent of the words are Maya’s.":"";
+  $("#dQs").innerHTML=QN.map(function(q,i){return '<li class="'+(show?"q"+S.qc[i]:"")+'">'+q+"<span>"+(show?S.q[i]:"?")+"</span></li>"}).join("");
+  $("#dNote").textContent=show?S.note:"";
+}
+function playDial(n,animate){
+  var S=STOPS[n-1],b=$("#dBody");if(dT)clearInterval(dT);
+  $("#dial").value=n;$$("#stops button").forEach(function(x,i){x.classList.toggle("on",i===n-1)});
+  var bub=function(c){return '<div class="'+(c[0]==="m"?"me":"bub")+'"><b>'+(c[0]==="m"?"Maya":"AI")+":</b> "+esc(c[1])+"</div>"};
+  if(!animate||calm){b.innerHTML=S.chat.map(bub).join("");b.scrollTop=b.scrollHeight;result(S,true);return}
+  b.innerHTML="";result(S,false);var i=0;
+  var step=function(){if(i<S.chat.length){b.insertAdjacentHTML("beforeend",bub(S.chat[i]));b.scrollTop=b.scrollHeight;i++}else{clearInterval(dT);dT=null;result(S,true)}};
+  step();dT=setInterval(step,900);
+}
+$("#dial").oninput=function(){playDial(+this.value,true)};
+$$("#stops button").forEach(function(x){x.onclick=function(){playDial(+x.dataset.s,true)}});
+$("#dReplay").onclick=function(){playDial(+$("#dial").value,true)};
+playDial(1,false);
+
+/* ---------- demonstration 2: copy the prompt ---------- */
+$("#cpBtn").onclick=function(){var t=$("#cp").textContent,msg=$("#cpMsg");
+  var fallback=function(){try{var r=document.createRange();r.selectNodeContents($("#cp"));var s=getSelection();s.removeAllRanges();s.addRange(r);msg.textContent="Selected. Press Ctrl+C or Command+C to copy."}catch(e){msg.textContent="Select the text to copy it."}};
+  try{navigator.clipboard.writeText(t).then(function(){msg.textContent="Copied."},fallback)}catch(e){fallback()}};
+
+/* ---------- coaching prompt panel ---------- */
+$("#cpShow").onclick=function(){$("#cpPanel").hidden=false;$("#cpClose").focus()};
+$("#cpClose").onclick=function(){$("#cpPanel").hidden=true;$("#cpShow").focus()};
+
+/* ---------- it depends on the goal ---------- */
+var ACTS=[
+ ["turns Maya’s speech into text",["b","b"]],
+ ["fixes her spelling and grammar",["b","l"]],
+ ["organizes her ideas into a paragraph",["b","l"]],
+ ["supplies the evidence",["l","b"]],
+ ["checks her draft against her own goal and asks a question",["t","t"]]
+],RATE={b:["Removes a barrier","rb"],l:["Does the learning for her","rl"],t:["Supports her thinking","rt"]},goal=0,shown={};
+function drawActs(){
+  $("#acts tbody").innerHTML=ACTS.map(function(a,i){var r=RATE[a[1][goal]];return '<tr><td>'+a[0]+'</td><td>'+(shown[i]?'<span class="'+r[1]+'">'+r[0]+"</span>":'<button class="rv" data-i="'+i+'">Show</button>')+"</td></tr>"}).join("");
+  $$("#acts .rv").forEach(function(b){b.onclick=function(){shown[+b.dataset.i]=true;drawActs()}});
+  $$("#goals .btn").forEach(function(b,i){b.classList.toggle("on",i===goal)});
+  var all=Object.keys(shown).length===ACTS.length;
+  $("#goalLine").innerHTML=all?(goal===0?"Now change the goal.":"<b>The AI did not change. The goal did.</b>"):"";
+}
+$$("#goals .btn").forEach(function(b){b.onclick=function(){goal=+b.dataset.g;drawActs()}});drawActs();
+
+/* ---------- dial: time and the next day ---------- */
+var D_TIME=["1 minute","3 minutes","8 minutes","20 minutes"];
+var D_TOM=["Maya writes that summer comes when Earth is closer to the Sun.","Maya writes that summer comes when Earth is closer to the Sun.","Maya writes two sentences about the tilt, then stops.","Maya writes about the tilt, uses the Australia evidence, and checks her own draft."];
+var _result=result;
+result=function(S,show){_result(S,show);var i=STOPS.indexOf(S);
+  $("#dQs").insertAdjacentHTML("beforeend",'<li>Time it took<span>'+(show?D_TIME[i]:"?")+"</span></li>");
+  $("#dNote").innerHTML=show?'<span class="small" style="font-weight:normal">Tomorrow, without the tool:</span><br>'+D_TOM[i]:""};
+playDial(1,false);
+
+/* ---------- design template ---------- */
+var TPL=[
+ ["Student","Start with the student. Name strengths and what gets in the way.","Explains ideas well out loud. Getting them onto the page is hard."],
+ ["Learning goal","Name what the student is learning today. It decides what the AI may do.","Explain why we have seasons, using evidence."],
+ ["Access","Let the AI carry most of the load for access. Remove barriers first.","Reads text aloud, turns her speech into text, and fixes spelling."],
+ ["Thinking","Have the AI ask, check, and question. It never sets the goal or gives the answer.","Asks her to restate the task and set a goal. Checks her draft against her goal. Asks a question; gives no answer."],
+ ["Agency","Give the student real choices: the goal, the kind of help, and what to keep.","Maya picks her goal, her strategy, and how much help she wants. She decides what to revise."],
+ ["Rules","Write down what the AI must not do for this goal. Follow accessibility standards.","Never writes the paragraph or supplies the evidence. Class AI rules and student privacy rules apply."],
+ ["Community","Keep a teacher in the loop. Say what peers and family do.","Science teacher sets the goal. Special education teacher sets the support with Maya. Family knows how AI is used."],
+ ["Over time","Shift the load to the student as independence grows. Keep access on.","Prompts move to Maya one at a time. Access tools stay on."]
+];
+$("#tpl tbody").innerHTML=TPL.map(function(r,i){return "<tr><td>"+r[0]+"</td><td>"+r[1]+'</td><td><label class="sr" for="tp'+i+'">Your plan: '+r[0]+'</label><textarea id="tp'+i+'" rows="2"></textarea></td></tr>'}).join("");
+$("#tplFill").onclick=function(){TPL.forEach(function(r,i){$("#tp"+i).value=r[2]});$("#tplMsg").textContent=""};
+$("#tplClear").onclick=function(){TPL.forEach(function(r,i){$("#tp"+i).value=""});$("#tplMsg").textContent=""};
+$("#tplCopy").onclick=function(){
+  var t="A template for designing AI that promotes student agency\n\n"+TPL.map(function(r,i){return (i+1)+". "+r[0]+": "+r[1]+"\n   Plan: "+$("#tp"+i).value}).join("\n\n")+"\n\nSource: Zhang, Carter, & Lim (2025).";
+  var msg=$("#tplMsg"),fail=function(){msg.textContent="Copying is blocked here. Open the page in its own tab and try again."};
+  try{navigator.clipboard.writeText(t).then(function(){msg.textContent="Copied."},fail)}catch(e){fail()}};
+
+})();
+</script>
+</body>
+</html>
