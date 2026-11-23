@@ -315,6 +315,25 @@ input[type=checkbox],input[type=radio]{width:20px;height:20px;vertical-align:-3p
 #s-title{text-align:center;align-items:center}
 #s-title .who{align-self:stretch}
 a.btn{text-decoration:none;display:inline-block}
+.h3{font-size:27px;margin:0 0 8px;color:var(--navy)}
+.p3{font-size:23px;line-height:1.3;margin:0}
+#par{width:100%;border-collapse:collapse;font-size:25px;border-top:2px solid var(--navy)}
+#par td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.28}
+#par td:first-child{width:300px;font-weight:bold;color:var(--navy)}
+.rq{flex:0 0 520px;margin:0;padding:0;list-style:none;counter-reset:rq;display:flex;flex-direction:column;gap:8px}
+.rq li{counter-increment:rq;font-size:21px;line-height:1.25;padding:9px 14px 9px 50px;border:1px solid var(--line);border-radius:8px;position:relative;margin:0}
+.rq li::before{content:counter(rq);position:absolute;left:14px;top:8px;font-size:30px;font-weight:bold;color:var(--muted)}
+.rq li b{display:block;font-size:23px;color:var(--navy)}
+.rq li.on{border:2px solid var(--brown);padding:8px 13px 8px 49px;background:#F5EFE9}
+.rq li.on::before{color:var(--brown)}
+#s-maria h2{margin-bottom:14px}
+#s-maria .btn{font-size:20px;padding:7px 18px}
+.refs p{font-size:19.5px;margin-bottom:9px}
+.hl{margin:0;padding-left:22px}
+.hl li{font-size:21px;line-height:1.28;margin-bottom:8px}
+.hl li b{color:var(--navy)}
+#par{font-size:24px}
+#par td:first-child{width:380px}
 </style>
 </head>
 <body>
@@ -451,6 +470,65 @@ Use short sentences. Ask one question at a time. I may speak my answers, so igno
   <aside><b>Both, about 4 minutes.</b> Haidee moves the dial one stop at a time, left to right; Ling narrates. The conversation plays on the left. On the right, Maya’s finished paragraph is color-coded: brown for the AI’s words, navy for Maya’s. At “Fix it for me,” point out that the mistake about distance disappears and Maya never learns why. At “Coach me,” point out that every word is Maya’s and she caught her own mistake. Under the three questions, point to the time each stop took and what Maya writes the next day without the tool; these are illustrations. Then ask viewers: which stop would you choose on a day Maya is exhausted? On the day before a writing test? Support is a dial, not a switch, and the access tools stay on at every stop. Last, ask who should hold the dial. Most tools arrive set to “Write it for me,” so if no one chooses, the default chooses. Agency means Maya learns to choose her own stop and say why. Press Replay to play a stop again. To finish, click “Show the coaching prompt”: teachers can paste it into a chatbot their school allows to get the “Coach me” behavior. The prompt has not been tested on every chatbot, so say that teachers should try it first.</aside>
 </section>
 
+<section class="slide" id="s-select" aria-label="Selecting AI tools">
+  <p class="kicker">From designing AI to choosing it: Jackson, Yang, and Rath</p>
+  <h2>Choose AI tools by learning theory, not by marketing</h2>
+  <div class="card" style="margin-bottom:14px;border-left:6px solid var(--brown);padding:14px 22px">
+    <p style="margin:0;font-size:25px"><b>Central purpose: a multi-paradigmatic framework.</b> Equip educators to evaluate and integrate AI tools using established learning theories rather than vendor marketing claims.</p>
+  </div>
+  <div class="row" style="gap:18px">
+    <div class="card grow" style="padding:14px 20px"><h3 class="h3">Purpose</h3>
+      <ul class="hl">
+        <li><b>Prioritize special education and IEPs.</b> Provide critical guidance for inclusive settings where AI accommodations must match individual IEP goals (Marino et al., 2023).</li>
+        <li><b>Preemptive ethical strategy.</b> Grounded learning theory empowers educators to mitigate algorithmic bias and avoid automated inequality (Williamson &amp; Eynon, 2020).</li>
+      </ul></div>
+    <div class="card grow" style="padding:14px 20px"><h3 class="h3">Key contributions and significance</h3>
+      <ul class="hl">
+        <li><b>Synthesizing foundational inquiries.</b> Adapts categorical instructional questions (Ertmer &amp; Newby, 2013; Schunk, 1991, 2012) directly to AI integration.</li>
+        <li><b>Triangulating three AI paradigms.</b> Bridges behaviorism (AI-directed), constructivism (AI-supported), and complexity theory (AI-empowered) (Ouyang &amp; Jiao, 2021).</li>
+        <li><b>Actionable classroom demonstration.</b> Provides an authentic three-phase classroom vignette showing how teachers orchestrate tools without ceding pedagogical agency.</li>
+      </ul></div>
+  </div>
+  <p class="src">Jackson, Yang, and Rath, “Guiding Educators in Selecting Artificial Intelligence Tools Through a Multi-Paradigmatic Learning Theory Lens.”</p>
+  <aside><b>Haidee, about 1 minute.</b> Ling’s framework asks how AI should be designed for agency. Most teachers do not design tools; they choose them. Our manuscript gives educators a way to choose using learning theory in place of vendor claims. Walk through the purpose on the left and the three contributions on the right. The next two slides show the paradigms and the classroom vignette.</aside>
+</section>
+
+<section class="slide" id="s-paradigm" aria-label="Three paradigms">
+  <p class="kicker">Three lenses for looking at an AI tool</p>
+  <h2>Literature findings: three AI paradigms</h2>
+  <div class="row" style="gap:10px;margin-bottom:14px" id="pars">
+    <button class="btn" data-p="0">AI-directed</button>
+    <button class="btn" data-p="1">AI-supported</button>
+    <button class="btn" data-p="2">AI-empowered</button>
+  </div>
+  <table id="par" aria-live="polite"><tbody></tbody></table>
+  <p class="src">Jackson, Yang, and Rath, Table 1 (Questions 5 to 7). Paradigms from Ouyang and Jiao (2021).</p>
+  <aside><b>Haidee, about 1 minute.</b> Click each lens. AI-directed tools follow behaviorism: the AI sets the sequence and gives feedback, which suits skills with clear right answers. AI-supported tools follow constructivism: the learner builds a path with the teacher’s help. AI-empowered tools follow complexity theory: AI, learner, and teacher design together, and this is the lens that names metacognition and self-regulation. Tie back to the dial: as we move across the lenses, more of the thinking stays with the student and the teacher.</aside>
+</section>
+
+<section class="slide" id="s-maria" aria-label="Four questions and a vignette">
+  <p class="kicker">In practice</p>
+  <h2>Four reflective questions and a classroom vignette</h2>
+  <div class="row" style="gap:20px;flex:1;min-height:0;margin-bottom:30px">
+    <ol class="rq" id="rq">
+      <li data-q="iep"><b>The IEP question</b>How, specifically, does this tool help a student meet the goals outlined in their IEP?</li>
+      <li data-q="beh"><b>The behaviorist question</b>Does this tool help a student master a foundational skill through structured practice and reinforcement?</li>
+      <li data-q="con"><b>The constructivist question</b>Does this tool empower a student to build their own understanding and express their unique ideas?</li>
+      <li data-q="com"><b>The complexity question</b>How does this tool interact with the classroom ecosystem to create a more responsive environment?</li>
+    </ol>
+    <div class="card grow" style="display:flex;flex-direction:column;padding:16px 20px">
+      <p class="p3" style="margin:0 0 10px"><b>Mr. Davis and Maria (seventh-grade ELA).</b> Maria has an IEP for specific learning disability in written expression. Rich storytelling, but syntax overload blocks essay organization.</p>
+      <div class="row" style="gap:8px;margin-bottom:10px" id="phases">
+        <button class="btn" data-ph="0">Phase 1</button><button class="btn" data-ph="1">Phase 2</button><button class="btn" data-ph="2">Phase 3</button>
+      </div>
+      <div id="phText" aria-live="polite"></div>
+      <p id="phLine" style="margin:auto 0 0;font-size:23px;font-weight:bold;color:var(--navy)"></p>
+    </div>
+  </div>
+  <p class="src">Jackson, Yang, and Rath. Maria and Mr. Davis are a vignette from the manuscript.</p>
+  <aside><b>Haidee, about 1 minute 15 seconds.</b> Read the four questions briefly, then click the three phases. Each phase lights up the question it answers; the IEP question stays lit throughout. Phase 1: Mr. Davis uses analytics to adjust the environment. Phase 2: the AI asks Socratic questions and Maria makes every decision about her argument; this is the “Coach me” stop on the dial. Phase 3: the grammar corrector is an accommodation, because mechanics are not the goal of this task; this is the “It depends on the goal” slide. Maria is the student in our manuscript; Maya, earlier, is a different made-up student with a similar profile.</aside>
+</section>
+
 <section class="slide" id="s-template" aria-label="Design template">
   <p class="kicker">Take this with you</p>
   <h2>A template for designing AI that promotes student agency</h2>
@@ -472,6 +550,7 @@ Use short sentences. Ask one question at a time. I may speak my answers, so igno
 <section class="slide" id="s-refs" aria-label="References">
   <h2>References</h2>
   <div class="refs">
+    <p>Jackson, H. A., Yang, S., &amp; Rath, S. (2026). <i>Guiding educators in selecting artificial intelligence tools through a multi-paradigmatic learning theory lens</i> [Unpublished manuscript]. University of Texas Permian Basin.</p>
     <p>Salomon, G., Perkins, D. N., &amp; Globerson, T. (1991). Partners in cognition: Extending human intelligence with intelligent technologies. <i>Educational Researcher, 20</i>(3), 2–9. <a href="https://doi.org/10.3102/0013189X020003002">https://doi.org/10.3102/0013189X020003002</a></p>
     <p>Zhang, L., Carter, R. A., Jr., &amp; Lim, S. N. (2025). Designing intelligent agents for students with disabilities: Promoting inclusion and equity through the lens of cultural-historical activity theory. <i>Journal of Special Education Technology</i>. Advance online publication. <a href="https://doi.org/10.1177/01626434251349405">https://doi.org/10.1177/01626434251349405</a></p>
     <p>Zhang, L., Carter, R. A., Jr., Liu, Y., &amp; Peng, P. (2024). Let’s CHAT about artificial intelligence for students with disabilities: A systematic literature review and meta-analysis. <i>Review of Educational Research</i>. Advance online publication. <a href="https://doi.org/10.3102/00346543241293424">https://doi.org/10.3102/00346543241293424</a></p>
@@ -650,6 +729,30 @@ result=function(S,show){_result(S,show);var i=STOPS.indexOf(S);
   $("#dQs").insertAdjacentHTML("beforeend",'<li>Time it took<span>'+(show?D_TIME[i]:"?")+"</span></li>");
   $("#dNote").innerHTML=show?'<span class="small" style="font-weight:normal">Tomorrow, without the tool:</span><br>'+D_TOM[i]:""};
 playDial(1,false);
+
+/* ---------- Jackson, Yang, and Rath: three paradigms ---------- */
+var PAR=[
+ {th:"Behaviorism (AI-directed)",r:["Procedural skills and factual recall with clear correct answers (computational math fluency, grammar rules, vocabulary).","Competency-based linear design: mastery at each stage verified before advancing through standards-based evaluation.","AI determines instruction through predetermined activity sequences with reinforcement feedback mechanisms.","Adaptive math apps (Bang et al., 2023); automated writing feedback platforms (Bonneton-Botte et al., 2020)."]},
+ {th:"Cognitive and social constructivism (AI-supported)",r:["Higher-order thinking: innovative problem-solving, critical evaluation, evidence-based argumentation, conceptual analysis.","Discovery-oriented and challenge-based models: nonlinear learning demonstrated through student-created artifacts.","AI creates adaptable learning environments with resources; learners construct their own paths with teacher facilitation.","Dynamic spatial geometry assessment (Wu &amp; Chang, 2023); Socratic reading chatbots (Liu et al., 2022)."]},
+ {th:"Complexity theory (AI-empowered)",r:["Flexible expertise, metacognition, self-regulatory thinking, and distributed cognition within dynamic environments.","Adaptive, network-based design: learning sequences cannot be predetermined; they emerge from teacher-student-AI interactions.","AI, learner, and teacher operate as collaborative co-designers; AI suggests adaptations that teachers guide and approve.","Predictive analytics for engagement (Le et al., 2018); group interaction and debate analytics (Cukurova et al., 2019)."]}
+],PARQ=["Paradigm","(5) What types of learning are best explained?","(6) Basic assumptions for instructional design?","(7) How should instruction be structured?","Empirical examples of AI tools"];
+function showPar(i){var p=PAR[i],rows=[p.th].concat(p.r);
+  $("#par tbody").innerHTML=rows.map(function(t,k){return "<tr><td>"+PARQ[k]+"</td><td>"+t+"</td></tr>"}).join("");
+  $$("#pars .btn").forEach(function(b,bi){b.classList.toggle("on",bi===i)})}
+$$("#pars .btn").forEach(function(b){b.onclick=function(){showPar(+b.dataset.p)}});showPar(0);
+
+/* ---------- Jackson, Yang, and Rath: vignette ---------- */
+var PH=[
+ {q:"com",h:"Phase 1: AI-empowered (complexity theory)",t:"Dashboard analytics reveal attention drops during typing but spikes in verbal sessions. Mr. Davis adjusts the environment: enables speech-to-text, provides accessible models, defers grammar grading."},
+ {q:"con",h:"Phase 2: AI-supported (constructivism)",t:"Maria inputs her draft and uses AI Socratic feedback. AI prompts: “How does evidence #2 support your claim?” Maria makes all argumentative decisions; AI acts as an inquiry partner, not an author."},
+ {q:"beh",h:"Phase 3: AI-directed (behaviorism)",t:"Once arguments are solidified, Maria uses AI grammar corrector as an IEP assistive accommodation. Immediate S‑R feedback builds fluency and reduces working memory load for mechanics."}
+],phSeen={};
+function showPh(i){var p=PH[i];phSeen[i]=true;
+  $("#phText").innerHTML="<h3 class='h3'>"+p.h+"</h3><p class='p3' style='margin:0'>"+p.t+"</p>";
+  $$("#phases .btn").forEach(function(b,bi){b.classList.toggle("on",bi===i)});
+  $$("#rq li").forEach(function(li){li.classList.toggle("on",li.dataset.q==="iep"||li.dataset.q===p.q)});
+  $("#phLine").textContent=Object.keys(phSeen).length===3?"The teacher orchestrates the tools without ceding pedagogical agency.":""}
+$$("#phases .btn").forEach(function(b){b.onclick=function(){showPh(+b.dataset.ph)}});
 
 /* ---------- design template ---------- */
 var TPL=[
